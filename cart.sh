@@ -8,7 +8,7 @@
 # Date: 19/05/26
 ################################################
 
-source common.sh
+source ./common.sh
 app_name="cart"
 
 # Application Configuration
