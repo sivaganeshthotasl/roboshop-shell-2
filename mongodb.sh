@@ -8,7 +8,7 @@
 # Date: 17-05-26
 ###########################################################################
 
-source common.sh
+source ./common.sh
 APP_NAME="MongoDB"
 
 # Root User Validation
