@@ -114,9 +114,9 @@ maven_setup(){
 }
 
 systemd_setup(){
-    cp $SCRIPT_DIR/shipping.service /etc/systemd/system/shipping.service &>>$LOG_FILE
+    cp $SCRIPT_DIR/$app_name.service /etc/systemd/system/$app_name.service &>>$LOG_FILE
     VALIDATE $? "Copying shipping.service to systemd"
-    
+
     # Reload SystemD Manager
     systemctl daemon-reload  &>>$LOG_FILE
     VALIDATE $? "Reloading SystemD Manager"
