@@ -48,5 +48,5 @@ systemctl restart mongod &>>$LOG_FILE
 VALIDATE $? "Restarting MongoDB"
 
 # Print The Time
-PRINT_TIME
+print_time
 
