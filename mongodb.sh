@@ -12,7 +12,7 @@ source ./common.sh
 APP_NAME="MongoDB"
 
 # Root User Validation
-CHECK_ROOT
+check_root
 
 
 ## MongoDB Repository Configuration
