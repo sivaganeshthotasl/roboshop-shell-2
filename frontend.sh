@@ -9,7 +9,7 @@
 # Date: 18/05/26
 ###################################################################
 
-source common.sh
+source ./common.sh
 app_name="frontend"
 
 # Root User Validation
