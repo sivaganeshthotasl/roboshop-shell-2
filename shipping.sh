@@ -16,7 +16,7 @@ app_name="shipping"
 check_root
 
 # Enter Mysql Root Password to setup
-echo "$Y Please Enter the Root Password: $N"
+echo -e "$Y Please Enter the Root Password: $N"
 read -s MYSQL_ROOT_PASSWORD
 
 # Applicatino Configuration Set UP
