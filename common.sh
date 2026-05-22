@@ -61,5 +61,5 @@ VALIDATE(){
 PRINT_TIME(){
     END_TIME="$(date +%s)"
     TOTAL_TIME="$(( $END_TIME - START_TIME ))"
-    echo "$Y The Script Execution is Completed Successfully. Time Taken: $TOTAL_TIME Seconds $N"
+    echo -e "$Y The Script Execution is Completed Successfully. Time Taken: $TOTAL_TIME Seconds $N"
 }
