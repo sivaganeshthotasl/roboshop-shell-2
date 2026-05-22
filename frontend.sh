@@ -1,0 +1,69 @@
+#!/bin/bash
+
+###################################################################
+# Author: Siva Ganesh Thota SL
+# Project: Roboshop Automation
+# Component: Frontend
+# Description: Frontend Service Set Up Script
+# Version : 1.0
+# Date: 18/05/26
+###################################################################
+
+source common.sh
+app_name="frontend"
+
+# Root User Validation
+check_root
+
+
+# Disable & Enable Nginx
+
+dnf module disable nginx -y &>>$LOG_FILE
+VALIDATE $? "Disable Nginx"
+dnf module enable nginx:1.24 -y &>>$LOG_FILE
+VALIDATE $? "Enabling Nginx"
+
+# Install Nginx
+dnf install nginx -y &>>$LOG_FILE
+VALIDATE $? "Installing Nginx"
+
+# Enable & Start Nginx
+systemctl enable nginx &>>$LOG_FILE
+VALIDATE $? "Enabling Nginx"
+systemctl start nginx &>>$LOG_FILE
+VALIDATE $? "Starting Nginx"
+
+# Remove Default Nginx web content
+rm -rf /usr/share/nginx/html/*
+VALIDATE $? " Removing Default Nginx Content"
+
+# Download Front Application Code
+curl -o /tmp/frontend.zip https://roboshop-artifacts.s3.amazonaws.com/frontend-v3.zip &>>$LOG_FILE
+VALIDATE $? "Downloading Frontend Content to /tmp"
+
+# Extract Frontend Application Files
+cd /usr/share/nginx/html
+unzip -o /tmp/frontend.zip &>>$LOG_FILE
+VALIDATE $? "Extracting frontend files"
+
+# Copy Roboshop Nginx conf file 
+cp $SCRIPT_DIR/nginx.conf /etc/nginx/nginx.conf
+VALIDATE $? "Copying updated nginx.conf file"
+
+# Validating nginx conf
+nginx -t &>>$LOG_FILE
+VALIDATE $? "Validating Nginx"
+
+# Restart Nginx 
+systemctl restart nginx &>>$LOG_FILE
+VALIDATE $? "Restarting Nginx"
+
+# Print Time
+print_time
+
+
+
+
+
+
+

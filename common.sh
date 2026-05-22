@@ -9,6 +9,8 @@
 # Date: 21/05/06
 ##################################################
 
+# Variables #
+
 # Start Time
 START_TIME="$(date +%s)"
 # Colour Variables
@@ -32,8 +34,12 @@ echo -e "$Y The Script execution started at $START_TIME $N"
 # Creating Script Directory for copying mongo.repo for installing mongodb client.
 SCRIPT_DIR=$(pwd)
 
+
+# End Variables #
+
+
 # Root User Validation
-CHECK_ROOT(){
+check_root(){
     USER_ID="$(id -u)"
     if [ $USER_ID -ne 0 ]
     then
@@ -44,6 +50,84 @@ CHECK_ROOT(){
     fi
 
 }
+
+# Application set up
+app_setup(){
+    #Creating Roboshop Application User
+    id roboshop  &>>$LOG_FILE
+    if [ $? -ne 0 ]
+    then
+         useradd --system --home /app --shell /sbin/nologin --comment "Roboshop System User" roboshop &>>$LOG_FILE
+         VALIDATE $? "Creating Roboshop Application User"
+    else
+         echo -e "$B Roboshop User Already Created.. $Y Skipping $N"  &>>$LOG_FILE
+    fi
+    
+    #Creating Application Directory
+    mkdir -p /app &>>$LOG_FILE
+    VALIDATE $? "Creating Application Directory"
+    
+    #Download the $app_name Application Code into /tmp Directory
+    curl -o /tmp/$app_name.zip https://roboshop-artifacts.s3.amazonaws.com/$app_name-v3.zip  &>>$LOG_FILE
+    VALIDATE $? "Downloading $app_name zip File into /tmp Directory"
+    
+    #Extract $app_name Application Files
+    cd /app
+    unzip -o /tmp/$app_name.zip &>>$LOG_FILE
+    VALIDATE $? "Extracting $app_name content files"
+
+}
+
+# NodeJs Set Up
+nodejs_setup(){
+    #Disable Default Nodejs Version
+    dnf module disable nodejs -y &>>$LOG_FILE
+    VALIDATE $? "Disabling Default Nodejs"
+
+    # Enable NodeJS 20 Version
+    dnf module enable nodejs:20 -y &>>$LOG_FILE
+    VALIDATE $? "Enabling NodeJS 20 Version"
+
+    #Install NodeJS
+    dnf install nodejs -y  &>>$LOG_FILE
+    VALIDATE $? "Installing NodeJS" 
+
+    #Install NodeJS Dependencies
+    cd /app
+    VALIDATE $? "Changing to /app Directory"
+    npm install --force &>>$LOG_FILE
+    VALIDATE $? "Install NodeJS Dependencies"
+
+
+}
+
+maven_setup(){
+    # Installing Maven or Java
+    dnf install maven -y &>>$LOG_FILE
+    VALIDATE $? "Installing Maven"
+    # Install Dependencies & Build the application
+    cd /app
+    mvn clean package &>>$LOG_FILE
+    VALIDATE $? "Clear the Old dependencies and Installing new dependencies"
+    mv target/shipping-1.0.jar shipping.jar  &>>$LOG_FILE
+    VALIDATE $? "rename the shipping.jar file and store in the /app"
+}
+
+systemd_setup(){
+    cp $SCRIPT_DIR/shipping.service /etc/systemd/system/shipping.service &>>$LOG_FILE
+    VALIDATE $? "Copying shipping.service to systemd"
+    
+    # Reload SystemD Manager
+    systemctl daemon-reload  &>>$LOG_FILE
+    VALIDATE $? "Reloading SystemD Manager"
+
+    # Enable & Start $app_name service
+    systemctl enable $app_name  &>>$LOG_FILE
+    VALIDATE $? "Enable $app_name service"
+    systemctl start $app_name  &>>$LOG_FILE
+    VALIDATE $? "Start $app_name service"
+}
+
 
 
 # Validate Function
@@ -57,8 +141,8 @@ VALIDATE(){
     fi
 }
 
-
-PRINT_TIME(){
+# Print Time Function
+print_time(){
     END_TIME="$(date +%s)"
     TOTAL_TIME="$(( $END_TIME - START_TIME ))"
     echo -e "$Y The Script Execution is Completed Successfully. Time Taken: $TOTAL_TIME Seconds $N"
