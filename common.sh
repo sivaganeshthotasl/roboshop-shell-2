@@ -69,7 +69,7 @@ app_setup(){
     
     #Download the $app_name Application Code into /tmp Directory
     curl -o /tmp/$app_name.zip https://roboshop-artifacts.s3.amazonaws.com/$app_name-v3.zip  &>>$LOG_FILE
-    VALIDATE $? "Downloading $app_name zip File into /tmp Directory"
+    VALIDATE $? "Downloading $app_name.zip File into /tmp Directory"
     
     #Extract $app_name Application Files
     cd /app
@@ -111,6 +111,17 @@ maven_setup(){
     VALIDATE $? "Clear the Old dependencies and Installing new dependencies"
     mv target/shipping-1.0.jar shipping.jar  &>>$LOG_FILE
     VALIDATE $? "rename the shipping.jar file and store in the /app"
+}
+
+python_setup(){
+    # Install Python 3 and required build tools
+    dnf install python3 gcc python3-devel -y &>>$LOG_FILE
+    VALIDATE $? "Installing Python3 & Build Tools"
+
+    # Install all required application dependencies
+    cd /app
+    pip3 install -r requirements.txt &>>$LOG_FILE
+    VALIDATE $? "Install Requirement Dependencies"
 }
 
 systemd_setup(){
