@@ -51,7 +51,7 @@ check_root(){
 
 }
 
-# Application set up
+# Application Configuration SetUp
 app_setup(){
     #Creating Roboshop Application User
     id roboshop  &>>$LOG_FILE
@@ -78,7 +78,7 @@ app_setup(){
 
 }
 
-# NodeJs Set Up
+# NodeJs Configuration SetUp
 nodejs_setup(){
     #Disable Default Nodejs Version
     dnf module disable nodejs -y &>>$LOG_FILE
@@ -101,6 +101,7 @@ nodejs_setup(){
 
 }
 
+# Maven Configuration SetUp
 maven_setup(){
     # Installing Maven or Java
     dnf install maven -y &>>$LOG_FILE
@@ -113,6 +114,7 @@ maven_setup(){
     VALIDATE $? "rename the shipping.jar file and store in the /app"
 }
 
+# Python Configuration SetUp
 python_setup(){
     # Install Python 3 and required build tools
     dnf install python3 gcc python3-devel -y &>>$LOG_FILE
@@ -124,6 +126,30 @@ python_setup(){
     VALIDATE $? "Install Requirement Dependencies"
 }
 
+# Golang Configuration setup
+golang_setup(){
+    # Install the required Go because dispatch built by Go Lang
+    dnf install golang -y &>>$LOG_FILE
+    VALIDATE $? "Installing Golang"
+
+    # install the required dependencies 
+    cd /app
+    if [ -f go.mod ]
+    then
+         echo -e "$Y go.mod already exists...Skipping $N" | tee -a $LOG_FILE
+    else
+        go mod init dispatch &>>$LOG_FILE
+        VALIDATE $? "Initializing Dispatch"
+    fi
+
+    # Dowload the Libraries and build the application
+    go get &>>$LOG_FILE
+    VALIDATE $? "Dowloading Libraries"
+    go build &>>$LOG_FILE
+    VALIDATE $? "Creating executables"
+}
+
+# SystemD Configuration SetUp
 systemd_setup(){
     cp $SCRIPT_DIR/$app_name.service /etc/systemd/system/$app_name.service &>>$LOG_FILE
     VALIDATE $? "Copying shipping.service to systemd"
