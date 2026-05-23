@@ -15,8 +15,9 @@ app_name="mysql"
 check_root
 
 # Enter Mysql Root Password to setup
-echo -e "$Y Please Enter the Root Password: $N"
+echo -e "$Y Please Enter MySQL Root Password: $N"
 read -s MYSQL_ROOT_PASSWORD
+echo
 
 ##MysqlDB configuration##
 # Install Mysql server
@@ -30,8 +31,17 @@ systemctl start mysqld &>>$LOG_FILE
 VALIDATE $? "Starting mysqld"
 
 #change the default root password in order to start using the database service. Use password RoboShop@1
-mysql_secure_installation --set-root-pass $MYSQL_ROOT_PASSWORD &>>$LOG_FILE
-VALIDATE $? "Changing default Password"
+#mysql_secure_installation --set-root-pass $MYSQL_ROOT_PASSWORD &>>$LOG_FILE
+mysql -uroot -p${MYSQL_ROOT_PASSWORD} -e "show databases;" &>>$LOG_FILE
+
+if [ $? -ne 0 ]
+then
+    mysql_secure_installation --set-root-pass ${MYSQL_ROOT_PASSWORD} &>>$LOG_FILE
+    VALIDATE $? "Setting Root Password"
+else
+    echo "MySQL Root password already configured"
+fi
+
 
 END_TIME=$(date +%s)
 TOTAL_TIME=$(( $END_TIME - $START_TIME ))
